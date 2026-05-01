@@ -271,7 +271,7 @@ function dld(id,labels,data,colors){
   });
 }
 
-(function(){
+document.addEventListener("DOMContentLoaded",function(){
   dld('ageChart',['> 25 days','15-25 days','8-15 days'],[34,60,79],[C.r,C.o,C.y]);
   dld('reasonChart',['Troubleshooting','TMP-Slack','Pend. Customer','Active Inv.','Support Delay'],[58,37,36,32,10],[C.r,C.g,C.y,C.b,C.o]);
   dld('statusChart',['Working','Need More Info','Call Scheduled'],[94,78,1],[C.b,C.y,C.p]);
@@ -323,7 +323,7 @@ function dld(id,labels,data,colors){
       scales:{x:{ticks:{color:'#94a3b8'},grid:{color:'#2e3347'}},y:{ticks:{color:'#94a3b8'},grid:{color:'#2e3347'}}}
     }
   });
-})();
+});
 
 function buildDD(){
   dld('reasonPie2',['Troubleshooting','TMP-Slack','Pend. Customer','Active Inv.','Support Delay'],[58,37,36,32,10],[C.r,C.g,C.y,C.b,C.o]);
@@ -364,7 +364,7 @@ function buildDD(){
     sd.map(c=>'<tr><td style="font-weight:600;color:#7b9aff">'+c.cn+'</td>'+
       '<td style="font-weight:700;color:'+(parseFloat(c.age_days)>25?C.r:parseFloat(c.age_days)>15?C.o:C.y)+'">'+parseFloat(c.age_days).toFixed(0)+'d</td>'+
       '<td style="font-size:11px">'+c.owner.split(' ').slice(0,2).join(' ')+'</td>'+
-      '<td style="max-width:250px;white-space:normal;font-size:11px;color:#94a3b8">'+(c.comments||'—')+'</td></tr>'
+      '<td style="max-width:250px;white-space:normal;font-size:11px;color:#94a3b8">'+(c.comments||'-')+'</td></tr>'
     ).join('')+'</tbody>';
 
   const nc=CASES.filter(c=>c.call.toLowerCase()==='no'||c.comments.toLowerCase().includes('no call')||c.comments.toLowerCase().includes('call attempt'));
@@ -372,7 +372,7 @@ function buildDD(){
     nc.map(c=>'<tr><td style="font-weight:600;color:#7b9aff">'+c.cn+'</td>'+
       '<td style="font-weight:700;color:'+(parseFloat(c.age_days)>25?C.r:parseFloat(c.age_days)>15?C.o:C.y)+'">'+parseFloat(c.age_days).toFixed(0)+'d</td>'+
       '<td style="font-size:11px">'+c.owner.split(' ').slice(0,2).join(' ')+'</td>'+
-      '<td style="max-width:250px;white-space:normal;font-size:11px;color:#94a3b8">'+(c.comments||(c.call==='No'?'Customer call: No':'—'))+'</td></tr>'
+      '<td style="max-width:250px;white-space:normal;font-size:11px;color:#94a3b8">'+(c.comments||(c.call==='No'?'Customer call: No':'-'))+'</td></tr>'
     ).join('')+'</tbody>';
 
   const tmp=CASES.filter(c=>c.reason==='TMP - Slack'&&!c.bug&&!c.inv).sort((a,b)=>parseFloat(b.age_days)-parseFloat(a.age_days));
@@ -381,7 +381,7 @@ function buildDD(){
       '<td style="font-weight:700;color:'+(parseFloat(c.age_days)>25?C.r:parseFloat(c.age_days)>15?C.o:C.y)+'">'+parseFloat(c.age_days).toFixed(0)+'d</td>'+
       '<td style="font-size:11px">'+c.owner.split(' ').slice(0,2).join(' ')+'</td>'+
       '<td style="font-size:11px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+c.prod+'">'+c.prod+'</td>'+
-      '<td style="color:#94a3b8">'+(c.days_esc||'—')+'</td></tr>'
+      '<td style="color:#94a3b8">'+(c.days_esc||'-')+'</td></tr>'
     ).join('')+'</tbody>';
 }
 
@@ -394,7 +394,7 @@ function pillSt(s){if(s==='Working')return '<span class="pill p-w">Working</span
 function pillR(r){
   const m={'Active Investigation':'p-ai','Troubleshooting is in progress':'p-tp','Pending from Customer':'p-pc','TMP - Slack':'p-tmp','Support Delay':'p-sd'};
   const lbl={'Active Investigation':'Active Inv.','Troubleshooting is in progress':'Troubleshoot.','Pending from Customer':'Pend. Cust.','TMP - Slack':'TMP-Slack','Support Delay':'Supp. Delay'};
-  return '<span class="pill '+(m[r]||'')+'">'+(lbl[r]||r||'—')+'</span>';
+  return '<span class="pill '+(m[r]||'')+'">'+(lbl[r]||r||'-')+'</span>';
 }
 
 function renderTbl(){
@@ -440,8 +440,8 @@ function drawPg(){
     '<td title="'+c.acct+'" style="font-size:11px">'+c.acct+'</td>'+
     '<td>'+(c.bug||c.inv?'<span style="color:#22c55e;font-size:13px">&#10003;</span>':'<span style="color:#ef4444;font-size:13px">&#10007;</span>')+'</td>'+
     '<td>'+(c.call.toLowerCase()==='yes'?'<span style="color:#22c55e;font-size:13px">&#10003;</span>':'<span style="color:#ef4444;font-size:13px">&#10007;</span>')+'</td>'+
-    '<td style="color:#94a3b8">'+(c.days_esc||'—')+'</td>'+
-    '<td title="'+c.comments+'" style="font-size:11px;max-width:140px;color:#94a3b8">'+(c.comments||(c.inv_num||'—'))+'</td>'+
+    '<td style="color:#94a3b8">'+(c.days_esc||'-')+'</td>'+
+    '<td title="'+c.comments+'" style="font-size:11px;max-width:140px;color:#94a3b8">'+(c.comments||(c.inv_num||'-'))+'</td>'+
     '</tr>'
   ).join('');
   const tp=Math.max(1,Math.ceil(filt.length/PSZ));
