@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IST Backlog Review — Executive Presentation</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Salesforce+Sans:wght@400;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  :root {
+    --sf-blue: #00A1E0;
+    --sf-dark: #032D60;
+    --sf-mid: #0176D3;
+    --sf-light: #1B96FF;
+    --sf-cloud: #D8EDFF;
+    --sf-green: #2E844A;
+    --sf-red: #BA0517;
+    --sf-yellow: #FE9339;
+    --sf-purple: #5867E8;
+    --sf-teal: #06A59A;
+    --white: #FFFFFF;
+    --gray-100: #F3F3F3;
+    --gray-200: #E5E5E5;
+    --gray-500: #747474;
+    --gray-800: #181818;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', sans-serif; background: #0a0a0a; }
+
+  /* SLIDE CONTAINER */
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide {
+    display: none;
+    width: 100%; height: 100%;
+    position: absolute; top: 0; left: 0;
+    animation: fadeIn .35s ease;
+  }
+  .slide.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* NAV */
+  .nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(3,45,96,.95); border-top: 1px solid rgba(255,255,255,.1);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 32px; z-index: 100; backdrop-filter: blur(10px);
+  }
+  .nav-bar .slide-counter { color: rgba(255,255,255,.5); font-size: 13px; }
+  .nav-btns { display: flex; gap: 10px; }
+  .nav-btn {
+    background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+    color: white; padding: 8px 22px; border-radius: 4px; cursor: pointer;
+    font-size: 13px; font-weight: 500; transition: all .2s;
+  }
+  .nav-btn:hover { background: var(--sf-blue); border-color: var(--sf-blue); }
+  .nav-btn:disabled { opacity: .3; cursor: default; background: transparent; }
+  .dot-nav { display: flex; gap: 8px; align-items: center; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); cursor: pointer; transition: all .2s; }
+  .dot.active { background: var(--sf-blue); transform: scale(1.3); }
+
+  /* ── SLIDE LAYOUTS ────────────────────────────────────────────── */
+
+  /* TITLE SLIDE */
+  .slide-title {
+    background: linear-gradient(135deg, var(--sf-dark) 0%, #06336e 50%, #0176D3 100%);
+    flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .slide-title::before {
+    content: ''; position: absolute; top: -100px; right: -100px;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,161,224,.25) 0%, transparent 70%);
+  }
+  .slide-title::after {
+    content: ''; position: absolute; bottom: -80px; left: -80px;
+    width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(27,150,255,.15) 0%, transparent 70%);
+  }
+  .sf-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+  .sf-cloud-icon { font-size: 36px; }
+  .sf-logo-text { font-size: 22px; font-weight: 700; color: white; letter-spacing: 1px; }
+  .title-eyebrow { font-size: 13px; font-weight: 600; color: var(--sf-blue); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 16px; }
+  .title-main { font-size: 52px; font-weight: 800; color: white; line-height: 1.1; margin-bottom: 16px; max-width: 800px; }
+  .title-sub { font-size: 20px; color: rgba(255,255,255,.65); margin-bottom: 48px; }
+  .title-meta { display: flex; gap: 32px; }
+  .title-meta-item { text-align: center; }
+  .title-meta-item .val { font-size: 36px; font-weight: 800; color: white; }
+  .title-meta-item .lbl { font-size: 12px; color: rgba(255,255,255,.5); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .title-meta-divider { width: 1px; background: rgba(255,255,255,.15); }
+  .title-date { position: absolute; bottom: 72px; right: 40px; font-size: 12px; color: rgba(255,255,255,.35); }
+
+  /* STANDARD SLIDE */
+  .slide-std {
+    background: var(--white);
+    flex-direction: column;
+  }
+  .slide-header {
+    background: var(--sf-dark);
+    padding: 28px 48px 24px;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .slide-header .eyebrow { font-size: 11px; font-weight: 600; color: var(--sf-blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .slide-header h2 { font-size: 28px; font-weight: 800; color: white; }
+  .slide-header .slide-num { font-size: 12px; color: rgba(255,255,255,.3); }
+  .slide-body { flex: 1; padding: 32px 48px 80px; overflow: hidden; }
+
+  /* ACCENT SLIDE */
+  .slide-accent {
+    background: linear-gradient(135deg, var(--sf-dark) 0%, #05345f 100%);
+    flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  }
+
+  /* ── COMPONENTS ───────────────────────────────────────────────── */
+
+  /* KPI CARDS */
+  .kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-bottom: 28px; }
+  .kpi-card {
+    border-radius: 8px; padding: 22px 20px;
+    border-left: 4px solid transparent;
+  }
+  .kpi-card.blue  { background: #EEF4FF; border-color: var(--sf-mid); }
+  .kpi-card.red   { background: #FFF1EE; border-color: var(--sf-red); }
+  .kpi-card.orange{ background: #FFF3E0; border-color: var(--sf-yellow); }
+  .kpi-card.green { background: #EEF7F0; border-color: var(--sf-green); }
+  .kpi-card .kpi-val { font-size: 40px; font-weight: 800; margin-bottom: 4px; }
+  .kpi-card.blue  .kpi-val { color: var(--sf-mid); }
+  .kpi-card.red   .kpi-val { color: var(--sf-red); }
+  .kpi-card.orange .kpi-val { color: var(--sf-yellow); }
+  .kpi-card.green .kpi-val { color: var(--sf-green); }
+  .kpi-card .kpi-label { font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .5px; }
+  .kpi-card .kpi-sub { font-size: 12px; color: var(--gray-500); margin-top: 6px; }
+
+  /* TWO COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  /* CHART CARD */
+  .chart-card {
+    background: var(--gray-100); border-radius: 8px; padding: 20px;
+    border: 1px solid var(--gray-200);
+  }
+  .chart-card h4 { font-size: 12px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; }
+  .chart-card canvas { max-height: 180px; }
+
+  /* FINDINGS */
+  .finding-list { display: flex; flex-direction: column; gap: 14px; }
+  .finding {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--gray-100); border-radius: 8px; padding: 16px;
+    border-left: 4px solid transparent;
+  }
+  .finding.red    { border-color: var(--sf-red); }
+  .finding.orange { border-color: var(--sf-yellow); }
+  .finding.blue   { border-color: var(--sf-mid); }
+  .finding.green  { border-color: var(--sf-green); }
+  .finding-icon { font-size: 22px; flex-shrink: 0; }
+  .finding-content strong { font-size: 14px; font-weight: 700; color: var(--gray-800); display: block; margin-bottom: 3px; }
+  .finding-content p { font-size: 12px; color: var(--gray-500); line-height: 1.5; }
+  .finding-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: 8px; vertical-align: middle; }
+  .badge-red { background: #FFF1EE; color: var(--sf-red); }
+  .badge-blue { background: #EEF4FF; color: var(--sf-mid); }
+  .badge-green { background: #EEF7F0; color: var(--sf-green); }
+
+  /* HORIZ BAR */
+  .hbar-list { display: flex; flex-direction: column; gap: 10px; }
+  .hbar-row { display: flex; align-items: center; gap: 10px; }
+  .hbar-label { font-size: 11px; color: var(--gray-800); width: 200px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hbar-track { flex: 1; background: var(--gray-200); border-radius: 4px; height: 10px; overflow: hidden; }
+  .hbar-fill { height: 100%; border-radius: 4px; background: var(--sf-mid); }
+  .hbar-val { font-size: 11px; color: var(--gray-500); width: 24px; text-align: right; }
+
+  /* MANAGER TABLE */
+  .mgr-tbl { width: 100%; border-collapse: collapse; }
+  .mgr-tbl th { font-size: 11px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .5px; padding: 8px 12px; border-bottom: 2px solid var(--gray-200); text-align: left; }
+  .mgr-tbl td { padding: 12px 12px; border-bottom: 1px solid var(--gray-200); font-size: 13px; }
+  .mgr-tbl tr:last-child td { border: none; }
+  .pct-row { display: flex; align-items: center; gap: 8px; }
+  .pct-track { flex: 1; background: var(--gray-200); border-radius: 4px; height: 8px; }
+  .pct-fill { height: 100%; border-radius: 4px; }
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .pill-red    { background: #FFF1EE; color: var(--sf-red); }
+  .pill-orange { background: #FFF3E0; color: var(--sf-yellow); }
+  .pill-green  { background: #EEF7F0; color: var(--sf-green); }
+  .pill-blue   { background: #EEF4FF; color: var(--sf-mid); }
+
+  /* ACTION ITEMS */
+  .action-list { display: flex; flex-direction: column; gap: 12px; }
+  .action-item { display: flex; gap: 14px; align-items: flex-start; background: var(--gray-100); border-radius: 8px; padding: 14px 16px; }
+  .action-num { width: 28px; height: 28px; border-radius: 50%; background: var(--sf-dark); color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .action-body strong { font-size: 13px; font-weight: 700; color: var(--gray-800); }
+  .action-body p { font-size: 12px; color: var(--gray-500); margin-top: 2px; line-height: 1.5; }
+  .action-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-right: 6px; }
+  .tag-now { background: #FFF1EE; color: var(--sf-red); }
+  .tag-week { background: #FFF3E0; color: var(--sf-yellow); }
+  .tag-process { background: #EEF4FF; color: var(--sf-mid); }
+
+  /* ACCENT SLIDE CONTENT */
+  .accent-icon { font-size: 56px; margin-bottom: 20px; }
+  .accent-title { font-size: 42px; font-weight: 800; color: white; margin-bottom: 12px; }
+  .accent-sub { font-size: 18px; color: rgba(255,255,255,.6); max-width: 600px; line-height: 1.6; }
+  .accent-stats { display: flex; gap: 48px; margin-top: 40px; }
+  .accent-stat .val { font-size: 48px; font-weight: 800; color: var(--sf-blue); }
+  .accent-stat .lbl { font-size: 13px; color: rgba(255,255,255,.5); margin-top: 4px; }
+
+  /* CLOSING */
+  .closing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 40px; }
+  .closing-card { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 24px; text-align: center; }
+  .closing-card .icon { font-size: 32px; margin-bottom: 12px; }
+  .closing-card h4 { font-size: 15px; font-weight: 700; color: white; margin-bottom: 8px; }
+  .closing-card p { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.6; }
+
+  /* PROGRESS BAR TOP */
+  .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--sf-blue); transition: width .3s ease; z-index: 200; }
+
+  /* KEYBOARD HINT */
+  .key-hint { position: fixed; top: 16px; right: 20px; font-size: 11px; color: rgba(255,255,255,.25); z-index: 100; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="key-hint">← → arrow keys to navigate</div>
+
+<div class="deck" id="deck">
+
+  <!-- ══ SLIDE 1: TITLE ══════════════════════════════════════════════════════ -->
+  <div class="slide slide-title active" id="slide-1">
+    <div class="sf-logo">
+      <span class="sf-cloud-icon">☁️</span>
+      <span class="sf-logo-text">Salesforce</span>
+    </div>
+    <div class="title-eyebrow">Industry & Revenue Cloud · Support Engineering</div>
+    <div class="title-main">IST Backlog<br/>Review</div>
+    <div class="title-sub">Root Cause Analysis &amp; Action Plan</div>
+    <div class="title-meta">
+      <div class="title-meta-item">
+        <div class="val">462</div>
+        <div class="lbl">Total Cases</div>
+      </div>
+      <div class="title-meta-divider"></div>
+      <div class="title-meta-item">
+        <div class="val">108</div>
+        <div class="lbl">Aged Cases</div>
+      </div>
+      <div class="title-meta-divider"></div>
+      <div class="title-meta-item">
+        <div class="val">84d</div>
+        <div class="lbl">Oldest Case</div>
+      </div>
+      <div class="title-meta-divider"></div>
+      <div class="title-meta-item">
+        <div class="val">3</div>
+        <div class="lbl">Managers</div>
+      </div>
+    </div>
+    <div class="title-date">May 2026 · Confidential</div>
+  </div>
+
+  <!-- ══ SLIDE 2: AGENDA ══════════════════════════════════════════════════════ -->
+  <div class="slide slide-std" id="slide-2">
+    <div class="slide-header">
+      <div>
+        <div class="eyebrow">Overview</div>
+        <h2>Agenda</h2>
+      </div>
+      <div class="slide-num">2 / 10</div>
+    </div>
+    <div class="slide-body" style="display:flex;align-items:center;justify-content:center;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:860px;">
+        <div class="finding blue">
+          <div class="finding-icon">📊</div>
+          <div class="finding-content">
+            <strong>01 · Backlog Snapshot</strong>
+            <p>Current state of 462 cases across all age buckets, status distribution and key metrics</p>
+          </div>
+        </div>
+        <div class="finding red">
+          <div class="finding-icon">🔍</div>
+          <div class="finding-content">
+            <strong>02 · Root Cause Analysis</strong>
+            <p>Why are cases aging? Four root causes identified across 108 delayed cases</p>
+          </div>
+        </div>
+        <div class="finding orange">
+          <div class="finding-icon">📦</div>
+          <div class="finding-content">
+            <strong>03 · Product Hotspots</strong>
+            <p>Top 5 products driving the most aged cases with specific breakdown</p>
+          </div>
+        </div>
+        <div class="finding green">
+          <div class="finding-icon">👤</div>
+          <div class="finding-content">
+            <strong>04 · Manager Accountability</strong>
+            <p>Caseload distribution, aging rates and team-level patterns across 3 managers</p>
+          </div>
+        </div>
+        <div class="finding blue" style="grid-column:span 2;">
+          <div class="finding-icon">✅</div>
+          <div class="finding-content">
+            <strong>05 · Action Plan</strong>
+            <p>6 prioritized actions with owners, timelines and success metrics to reduce backlog aging by 60% in 30 days</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 3: BACKLOG SNAPSHOT ══════════════════════════════════════════ -->
+  <div class="slide slide-std" id="slide-3">
+    <div class="slide-header">
+      <div>
+        <div class="eyebrow">Current State</div>
+        <h2>Backlog Snapshot</h2>
+      </div>
+      <div class="slide-num">3 / 10</div>
+    </div>
+    <div class="slide-body">
+      <div class="kpi-row">
+        <div class="kpi-card blue">
+          <div class="kpi-val">462</div>
+          <div class="kpi-label">Total Active Cases</div>
+          <div class="kpi-sub">Across all products &amp; age groups</div>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-val">41</div>
+          <div class="kpi-label">Critical (&gt;25 days)</div>
+          <div class="kpi-sub">9% of backlog · Avg 41.6 days old</div>
+        </div>
+        <div class="kpi-card orange">
+          <div class="kpi-val">67</div>
+          <div class="kpi-label">At Risk (15–25 days)</div>
+          <div class="kpi-sub">15% of backlog · Needs attention</div>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-val">65</div>
+          <div class="kpi-label">No GUS Escalation</div>
+          <div class="kpi-sub">60% of aged cases unescalated</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="chart-card">
+          <h4>Case Age Distribution</h4>
+          <canvas id="ageChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4>Case Status Breakdown</h4>
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 4: CRITICAL FINDING ══════════════════════════════════════════ -->
+  <div class="slide slide-accent" id="slide-4">
+    <div class="accent-icon">🚨</div>
+    <div class="accent-title">60% of aged cases have<br/>no engineering escalation</div>
+    <div class="accent-sub">65 out of 108 cases aged beyond 15 days have no GUS Investigation ticket — meaning no structured path to resolution exists for these customers.</div>
+    <div class="accent-stats">
+      <div class="accent-stat">
+        <div class="val">65</div>
+        <div class="lbl">Cases with no GUS ticket</div>
+      </div>
+      <div class="accent-stat">
+        <div class="val">84d</div>
+        <div class="lbl">Oldest unescalated case</div>
+      </div>
+      <div class="accent-stat">
+        <div class="val">0</div>
+        <div class="lbl">Reason for Delay documented<br/>(before this review)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 5: ROOT CAUSE ════════════════════════════════════════════════ -->
+  <div class="slide slide-std" id="slide-5">
+    <div class="slide-header">
+      <div>
+        <div class="eyebrow">Analysis</div>
+        <h2>Root Cause of Delay</h2>
+      </div>
+      <div class="slide-num">5 / 10</div>
+    </div>
+    <div class="slide-body">
+      <div class="two-col">
+        <div class="finding-list">
+          <div class="finding blue">
+            <div class="finding-icon">🔬</div>
+            <div class="finding-content">
+              <strong>Active Investigation <span class="finding-badge badge-blue">35 cases · 32%</span></strong>
+              <p>GUS Investigation open, Engineering engaged. Delay driven by issue complexity. Correctly escalated but risk of stagnation without regular follow-up.</p>
+            </div>
+          </div>
+          <div class="finding red">
+            <div class="finding-icon">🛠️</div>
+            <div class="finding-content">
+              <strong>Troubleshooting in Progress <span class="finding-badge badge-red">34 cases · 31% · HIGHEST RISK</span></strong>
+              <p>No GUS ticket despite 15+ day age. 12 cases are over 40 days old with zero escalation. Requires immediate triage decision from manager.</p>
+            </div>
+          </div>
+          <div class="finding orange">
+            <div class="finding-icon">⏳</div>
+            <div class="finding-content">
+              <strong>Pending from Customer <span class="finding-badge" style="background:#FFF3E0;color:#FE9339;">32 cases · 30%</span></strong>
+              <p>Solution provided or info requested but customer has not responded. No follow-up cadence in place — cases are drifting past SLA.</p>
+            </div>
+          </div>
+          <div class="finding green">
+            <div class="finding-icon">⚙️</div>
+            <div class="finding-content">
+              <strong>TMP Engineering (Slack) <span class="finding-badge badge-green">7 cases · 6%</span></strong>
+              <p>Bug + Investigation filed. Actively tracked with Engineering. Lowest risk — monitor fix ETAs and communicate to customers proactively.</p>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card" style="display:flex;flex-direction:column;justify-content:center;">
+          <h4>Root Cause Distribution (108 aged cases)</h4>
+          <canvas id="reasonChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 6: PRODUCT HOTSPOTS ══════════════════════════════════════════ -->
+  <div class="slide slide-std" id="slide-6">
+    <div class="slide-header">
+      <div>
+        <div class="eyebrow">Product Analysis</div>
+        <h2>Product Hotspots</h2>
+      </div>
+      <div class="slide-num">6 / 10</div>
+    </div>
+    <div class="slide-body">
+      <div class="two-col">
+        <div>
+          <div class="chart-card" style="margin-bottom:0">
+            <h4>Top 10 Products by Aged Cases (15+ days)</h4>
+            <div class="hbar-list" id="prodBars"></div>
+          </div>
+        </div>
+        <div class="finding-list">
+          <div class="finding red">
+            <div class="finding-icon">📦</div>
+            <div class="finding-content">
+              <strong>Industry-CPQ / Order Mgmt — 18 cases</strong>
+              <p>Largest contributor. Two SaskTel cases have patch fix scheduled May 18, 2026. Remaining 16 need escalation review.</p>
+            </div>
+          </div>
+          <div class="finding orange">
+            <div class="finding-icon">💊</div>
+            <div class="finding-content">
+              <strong>Industry-Life Sciences — 17 cases</strong>
+              <p>Multiple NMI cases with no customer contact in 20+ days. Recommend bulk outreach and closure where appropriate.</p>
+            </div>
+          </div>
+          <div class="finding orange">
+            <div class="finding-icon">🛒</div>
+            <div class="finding-content">
+              <strong>Industry-Retail &amp; Consumer Goods — 13 cases</strong>
+              <p>Mix of Working and NMI. Majority pending customer response or in early troubleshooting with no escalation path.</p>
+            </div>
+          </div>
+          <div class="finding blue">
+            <div class="finding-icon">💰</div>
+            <div class="finding-content">
+              <strong>Rev Cloud-Transaction Mgmt — 10 cases</strong>
+              <p>Concentrated with 2-3 engineers — potential knowledge bottleneck. GUS investigations present for most.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 7: MANAGER ACCOUNTABILITY ════════════════════════════════════ -->
+  <div class="slide slide-std" id="slide-7">
+    <div class="slide-header">
+      <div>
+        <div class="eyebrow">Team Performance</div>
+        <h2>Manager Accountability</h2>
+      </div>
+      <div class="slide-num">7 / 10</div>
+    </div>
+    <div class="slide-body">
+      <div class="two-col">
+        <div>
+          <div class="chart-card" style="margin-bottom:20px">
+            <h4>Caseload vs Aged Cases by Manager</h4>
+            <canvas id="mgrChart"></canvas>
+          </div>
+          <div class="chart-card">
+            <h4>Aging Rate (%)</h4>
+            <table class="mgr-tbl">
+              <thead><tr><th>Manager</th><th>Total</th><th>Aged</th><th>Rate</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><strong>Manu Ramamurthy</strong></td><td>167</td><td>48</td>
+                  <td><span class="pill pill-red">29%</span></td>
+                  <td><div class="pct-row"><div class="pct-track"><div class="pct-fill" style="width:29%;background:#BA0517;height:8px;border-radius:4px"></div></div></div></td>
+                </tr>
+                <tr>
+                  <td><strong>N. Rajendran</strong></td><td>111</td><td>26</td>
+                  <td><span class="pill pill-orange">23%</span></td>
+                  <td><div class="pct-row"><div class="pct-track"><div class="pct-fill" style="width:23%;background:#FE9339;height:8px;border-radius:4px"></div></div></div></td>
+                </tr>
+                <tr>
+                  <td><strong>Bhagat M</strong></td><td>184</td><td>34</td>
+                  <td><span class="pill pill-green">18%</span></td>
+                  <td><div class="pct-row"><div class="pct-track"><div class="pct-fill" style="width:18%;background:#2E844A;height:8px;border-radius:4px"></div></div></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="finding-list">
+          <div class="finding red">
+            <div class="finding-icon">👤</div>
+            <div class="finding-content">
+              <strong>Manu Ramamurthy — 29% aging rate</strong>
+              <p>Highest aging rate. 48 aged cases across Revenue Cloud and Industry products. 16 cases &gt;30 days with no GUS escalation require immediate action this week.</p>
+            </div>
+          </div>
+          <div class="finding orange">
+            <div class="finding-icon">👤</div>
+            <div class="finding-content">
+              <strong>Narendranath Rajendran — 23% aging rate</strong>
+              <p>Mid-range aging rate. Strong Industry-CPQ and Life Sciences concentration. 3 pre-filled cases show active management — this behavior needs to scale to all aged cases.</p>
+            </div>
+          </div>
+          <div class="finding green">
+            <div class="finding-icon">👤</div>
+            <div class="finding-content">
+              <strong>Bhagat M — 18% aging rate</strong>
+              <p>Best performing manager despite largest caseload (184 cases). Approach and practices should be shared with the broader team as a model for backlog hygiene.</p>
+            </div>
+          </div>
+          <div class="finding blue">
+            <div class="finding-icon">💡</div>
+            <div class="finding-content">
+              <strong>Key Insight</strong>
+              <p>Bhagat manages 10% more cases than Manu yet has 11% lower aging rate — this gap is process-driven, not volume-driven. Process standardization across all three teams is required.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 8: ACTION PLAN ════════════════════════════════════════════════ -->
+  <div class="slide slide-std" id="slide-8">
+    <div class="slide-header">
+      <div>
+        <div class="eyebrow">Path Forward</div>
+        <h2>Action Plan</h2>
+      </div>
+      <div class="slide-num">8 / 10</div>
+    </div>
+    <div class="slide-body">
+      <div class="two-col">
+        <div class="action-list">
+          <div class="action-item">
+            <div class="action-num">1</div>
+            <div class="action-body">
+              <strong><span class="action-tag tag-now">IMMEDIATE</span>Escalate 34 unescalated aged cases</strong>
+              <p>All "Troubleshooting in Progress" cases &gt;15d with no GUS ticket — manager go/no-go escalation decision within 48 hours. Cases &gt;40d escalate today.</p>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-num">2</div>
+            <div class="action-body">
+              <strong><span class="action-tag tag-now">IMMEDIATE</span>Contact all 32 pending-customer cases</strong>
+              <p>Outreach within 24 hours. No response after 5 business days → close with documented reason. Stop cases from drifting further.</p>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-num">3</div>
+            <div class="action-body">
+              <strong><span class="action-tag tag-week">THIS WEEK</span>Pull ETAs for 7 TMP-Engineering cases</strong>
+              <p>Get fix timelines from Engineering leads. Communicate proactively to customers. Set 7-day follow-up reminders.</p>
+            </div>
+          </div>
+        </div>
+        <div class="action-list">
+          <div class="action-item">
+            <div class="action-num">4</div>
+            <div class="action-body">
+              <strong><span class="action-tag tag-week">THIS WEEK</span>Share Bhagat M's playbook team-wide</strong>
+              <p>Bhagat manages 10% more cases with 11% lower aging rate. Document and distribute his escalation and follow-up practices to all three teams.</p>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-num">5</div>
+            <div class="action-body">
+              <strong><span class="action-tag tag-process">PROCESS</span>Make Reason for Delay mandatory at 15 days</strong>
+              <p>Zero tolerance for blank reason after 15 days. Enforce in weekly backlog review. Any case &gt;15d with no reason + no GUS = escalation required.</p>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-num">6</div>
+            <div class="action-body">
+              <strong><span class="action-tag tag-process">PROCESS</span>Weekly dashboard review cadence</strong>
+              <p>Run this dashboard every Monday. Target: reduce &gt;25d cases from 41 → under 15 within 30 days. Report progress to leadership bi-weekly.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 9: TARGET METRICS ════════════════════════════════════════════ -->
+  <div class="slide slide-std" id="slide-9">
+    <div class="slide-header">
+      <div>
+        <div class="eyebrow">Success Metrics</div>
+        <h2>30-Day Targets</h2>
+      </div>
+      <div class="slide-num">9 / 10</div>
+    </div>
+    <div class="slide-body" style="display:flex;align-items:center;">
+      <div style="width:100%">
+        <div class="three-col" style="margin-bottom:24px;">
+          <div class="kpi-card red" style="text-align:center;">
+            <div style="font-size:13px;color:var(--gray-500);margin-bottom:8px;">Critical Cases (&gt;25d)</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:16px;">
+              <div><div style="font-size:32px;font-weight:800;color:var(--sf-red)">41</div><div style="font-size:11px;color:var(--gray-500)">TODAY</div></div>
+              <div style="font-size:24px;color:var(--gray-500)">→</div>
+              <div><div style="font-size:32px;font-weight:800;color:var(--sf-green)">≤15</div><div style="font-size:11px;color:var(--gray-500)">TARGET</div></div>
+            </div>
+            <div style="font-size:12px;color:var(--sf-red);margin-top:8px;font-weight:600;">63% reduction</div>
+          </div>
+          <div class="kpi-card orange" style="text-align:center;">
+            <div style="font-size:13px;color:var(--gray-500);margin-bottom:8px;">No GUS Escalation (aged)</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:16px;">
+              <div><div style="font-size:32px;font-weight:800;color:var(--sf-yellow)">65</div><div style="font-size:11px;color:var(--gray-500)">TODAY</div></div>
+              <div style="font-size:24px;color:var(--gray-500)">→</div>
+              <div><div style="font-size:32px;font-weight:800;color:var(--sf-green)">0</div><div style="font-size:11px;color:var(--gray-500)">TARGET</div></div>
+            </div>
+            <div style="font-size:12px;color:var(--sf-green);margin-top:8px;font-weight:600;">100% escalated or closed</div>
+          </div>
+          <div class="kpi-card blue" style="text-align:center;">
+            <div style="font-size:13px;color:var(--gray-500);margin-bottom:8px;">Reason for Delay (aged)</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:16px;">
+              <div><div style="font-size:32px;font-weight:800;color:var(--sf-mid)">100%</div><div style="font-size:11px;color:var(--gray-500)">FILLED</div></div>
+              <div style="font-size:24px;color:var(--gray-500)">→</div>
+              <div><div style="font-size:32px;font-weight:800;color:var(--sf-green)">100%</div><div style="font-size:11px;color:var(--gray-500)">MAINTAINED</div></div>
+            </div>
+            <div style="font-size:12px;color:var(--sf-green);margin-top:8px;font-weight:600;">Zero blank reasons tolerated</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h4>Target vs Current — Aged Case Reduction Plan</h4>
+          <canvas id="targetChart" style="max-height:160px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 10: CLOSING ══════════════════════════════════════════════════ -->
+  <div class="slide slide-accent" id="slide-10">
+    <div class="sf-logo">
+      <span class="sf-cloud-icon">☁️</span>
+      <span class="sf-logo-text" style="font-size:18px;">Salesforce</span>
+    </div>
+    <div class="accent-title">Committed to Customer Success</div>
+    <div class="accent-sub">With clear root cause identification, immediate escalation actions and enforced process standards, we will resolve the backlog aging within 30 days.</div>
+    <div class="closing-grid">
+      <div class="closing-card">
+        <div class="icon">⚡</div>
+        <h4>Immediate Actions</h4>
+        <p>Escalate 34 cases &amp; contact 32 pending-customer cases within 48 hours</p>
+      </div>
+      <div class="closing-card">
+        <div class="icon">📋</div>
+        <h4>Process Fix</h4>
+        <p>Mandatory Reason for Delay at 15 days · Weekly dashboard review cadence</p>
+      </div>
+      <div class="closing-card">
+        <div class="icon">🎯</div>
+        <h4>30-Day Target</h4>
+        <p>Reduce critical cases from 41 → ≤15 · Zero unescalated aged cases</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- NAV BAR -->
+<div class="nav-bar">
+  <div class="slide-counter" id="slideCounter">1 / 10</div>
+  <div class="dot-nav" id="dotNav"></div>
+  <div class="nav-btns">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← Prev</button>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Next →</button>
+  </div>
+</div>
+
+<script>
+// ── SLIDE NAVIGATION ─────────────────────────────────────────────────────────
+const TOTAL = 10;
+let current = 1;
+
+function showSlide(n) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById(`slide-${n}`).classList.add('active');
+  document.getElementById('slideCounter').textContent = `${n} / ${TOTAL}`;
+  document.getElementById('prevBtn').disabled = n === 1;
+  document.getElementById('nextBtn').disabled = n === TOTAL;
+  document.getElementById('progressBar').style.width = `${(n/TOTAL)*100}%`;
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i+1===n));
+  current = n;
+  if (n === 3 && !chartsBuilt.age)  buildSlide3Charts();
+  if (n === 5 && !chartsBuilt.reason) buildSlide5Charts();
+  if (n === 6 && !chartsBuilt.prod) buildSlide6Bars();
+  if (n === 7 && !chartsBuilt.mgr) buildSlide7Charts();
+  if (n === 9 && !chartsBuilt.target) buildSlide9Charts();
+}
+
+function changeSlide(dir) { showSlide(Math.max(1,Math.min(TOTAL,current+dir))); }
+
+// Dots
+const dotNav = document.getElementById('dotNav');
+for (let i=1;i<=TOTAL;i++) {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===1?' active':'');
+  d.onclick = ()=>showSlide(i);
+  dotNav.appendChild(d);
+}
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key==='ArrowRight'||e.key==='ArrowDown') changeSlide(1);
+  if (e.key==='ArrowLeft'||e.key==='ArrowUp') changeSlide(-1);
+});
+
+// ── CHARTS ──────────────────────────────────────────────────────────────────
+const chartsBuilt = {};
+
+const SF = {
+  blue:'#0176D3', red:'#BA0517', orange:'#FE9339',
+  green:'#2E844A', purple:'#5867E8', teal:'#06A59A',
+  light:'#1B96FF', dark:'#032D60'
+};
+
+function mkDoughnut(id, labels, data, colors) {
+  new Chart(document.getElementById(id), {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data, backgroundColor:colors, borderWidth:2, borderColor:'#fff' }] },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{
+        legend:{ position:'right', labels:{ color:'#747474', font:{size:11}, boxWidth:10, padding:12 } }
+      }
+    }
+  });
+}
+
+function buildSlide3Charts() {
+  mkDoughnut('ageChart',
+    ['< 7 days','8–15 days','15–25 days','> 25 days'],
+    [249,105,67,41],
+    [SF.green, SF.orange, SF.orange, SF.red]
+  );
+  mkDoughnut('statusChart',
+    ['Working','Need More Info','Solution Provided','Call Scheduled'],
+    [219,180,55,8],
+    [SF.blue, SF.orange, SF.green, SF.purple]
+  );
+  chartsBuilt.age = true;
+}
+
+function buildSlide5Charts() {
+  mkDoughnut('reasonChart',
+    ['Active Investigation','Troubleshooting','Pending Customer','TMP Engineering'],
+    [35,34,32,7],
+    [SF.blue, SF.red, SF.orange, SF.green]
+  );
+  chartsBuilt.reason = true;
+}
+
+function buildSlide6Bars() {
+  const data = [
+    ['Industry-CPQ / OM',18],['Industry-Life Sciences',17],['Industry-Retail',13],
+    ['Rev Cloud-Trans Mgmt',10],['Rev Cloud-Configurator',7],
+    ['Revenue-CPQ Dev Support',5],['Revenue-SF CPQ',5],
+    ['Rev Cloud-Dev Support',4],['Rev Cloud-Price Mgmt',4],['Rev-SF Billing',4]
+  ];
+  const max = 18;
+  document.getElementById('prodBars').innerHTML = data.map(([l,v])=>`
+    <div class="hbar-row">
+      <div class="hbar-label" title="${l}">${l}</div>
+      <div class="hbar-track"><div class="hbar-fill" style="width:${(v/max*100).toFixed(0)}%;background:${v>=15?SF.red:v>=10?SF.orange:SF.blue}"></div></div>
+      <div class="hbar-val">${v}</div>
+    </div>`).join('');
+  chartsBuilt.prod = true;
+}
+
+function buildSlide7Charts() {
+  new Chart(document.getElementById('mgrChart'), {
+    type:'bar',
+    data:{
+      labels:['Manu Ramamurthy','Bhagat M','N. Rajendran'],
+      datasets:[
+        { label:'Total Cases', data:[167,184,111], backgroundColor:'rgba(1,118,211,.2)', borderColor:SF.blue, borderWidth:2 },
+        { label:'Aged Cases',  data:[48,34,26],    backgroundColor:[SF.red,SF.green,SF.orange], borderWidth:0, borderRadius:4 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ labels:{ color:'#747474', font:{size:11} } } },
+      scales:{
+        x:{ ticks:{ color:'#747474' }, grid:{ color:'#e5e5e5' } },
+        y:{ ticks:{ color:'#747474' }, grid:{ color:'#e5e5e5' } }
+      }
+    }
+  });
+  chartsBuilt.mgr = true;
+}
+
+function buildSlide9Charts() {
+  new Chart(document.getElementById('targetChart'), {
+    type:'bar',
+    data:{
+      labels:['Today (May 2026)','Week 1','Week 2','Week 3','30-Day Target'],
+      datasets:[
+        { label:'Critical >25d Cases', data:[41,30,22,15,10], backgroundColor:[SF.red,SF.orange,SF.orange,'#f59e0b',SF.green], borderRadius:4, borderWidth:0 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{ color:'#747474' }, grid:{ display:false } },
+        y:{ ticks:{ color:'#747474' }, grid:{ color:'#e5e5e5' }, max:50 }
+      }
+    }
+  });
+  chartsBuilt.target = true;
+}
+</script>
+</body>
+</html>
